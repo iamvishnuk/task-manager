@@ -1,4 +1,4 @@
-import { Button } from "@workspace/ui/components/button"
+import { Button } from "@task-manager/ui/components/button"
 
 export default function Page() {
   return (
