@@ -1,4 +1,8 @@
 {
+  "apps/api/**/*.{ts,js}": [
+    "pnpm exec prettier --write",
+    "pnpm exec eslint --config apps/api/eslint.config.mjs --fix"
+  ],
   "apps/web/**/*.{ts,tsx,js,jsx,mjs}": [
     "pnpm exec prettier --write",
     "pnpm exec eslint --config apps/web/eslint.config.mjs --fix"
