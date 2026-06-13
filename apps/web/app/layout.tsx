@@ -3,6 +3,8 @@ import { Geist, Geist_Mono, Inter } from 'next/font/google';
 import '@task-manager/ui/globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import { cn } from '@task-manager/ui/lib/utils';
+import QueryProvider from '@/components/query-provider';
+import { Toaster } from '@/components/sonner';
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -34,7 +36,13 @@ export default function RootLayout({
       )}
     >
       <body className='w-full max-w-svw overflow-x-hidden bg-white dark:bg-gray-950'>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <QueryProvider>{children}</QueryProvider>
+          <Toaster
+            richColors
+            position='bottom-right'
+          />
+        </ThemeProvider>
       </body>
     </html>
   );

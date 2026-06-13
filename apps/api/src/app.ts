@@ -28,7 +28,12 @@ export class App {
 
   private registerGlobalMiddleware(): void {
     this.express.use(helmet());
-    this.express.use(cors());
+    this.express.use(
+      cors({
+        origin: Config.getInstance().appOrigin,
+        credentials: true
+      })
+    );
     this.express.use(express.json());
     this.express.use(express.urlencoded({ extended: true }));
     this.express.use(cookieParser());

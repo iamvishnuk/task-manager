@@ -19,12 +19,18 @@ import {
   InputGroupButton,
   InputGroupInput
 } from '@task-manager/ui/components/input-group';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader } from 'lucide-react';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import Link from 'next/link';
+import { useMutation } from '@tanstack/react-query';
+import { registerMutationFn } from '@/lib/api';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 const SignUpPage = () => {
+  const router = useRouter();
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -38,8 +44,22 @@ const SignUpPage = () => {
     }
   });
 
+  const { mutate, isPending } = useMutation({
+    mutationFn: registerMutationFn
+  });
+
   const onSubmit = (data: TRegisterSchema) => {
-    console.log(data);
+    mutate(data, {
+      onSuccess: () => {
+        toast.success('Registration successful 🎉', {
+          description: "We,'ve send a verification link to your email"
+        });
+        router.push('/');
+      },
+      onError: (error) => {
+        toast.error('Registration Error', { description: error.message });
+      }
+    });
   };
 
   return (
@@ -71,6 +91,7 @@ const SignUpPage = () => {
                       aria-invalid={fieldState.invalid}
                       placeholder='John Doe'
                       className='placeholder:text-xs'
+                      disabled={isPending}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -93,6 +114,7 @@ const SignUpPage = () => {
                       type='email'
                       placeholder='johndoe@example.com'
                       className='placeholder:text-xs'
+                      disabled={isPending}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -116,6 +138,7 @@ const SignUpPage = () => {
                         aria-invalid={fieldState.invalid}
                         placeholder='Password@123'
                         className='placeholder:text-xs'
+                        disabled={isPending}
                       />
                       <InputGroupAddon align='inline-end'>
                         <InputGroupButton
@@ -147,6 +170,7 @@ const SignUpPage = () => {
                         aria-invalid={fieldState.invalid}
                         placeholder='Password@123'
                         className='placeholder:text-xs'
+                        disabled={isPending}
                       />
                       <InputGroupAddon align='inline-end'>
                         <InputGroupButton
@@ -154,7 +178,7 @@ const SignUpPage = () => {
                             setShowConfirmPassword(!showConfirmPassword)
                           }
                         >
-                          {showPassword ? <Eye /> : <EyeOff />}
+                          {showConfirmPassword ? <Eye /> : <EyeOff />}
                         </InputGroupButton>
                       </InputGroupAddon>
                     </InputGroup>
@@ -185,6 +209,7 @@ const SignUpPage = () => {
             className='w-full bg-blue-700 text-white hover:cursor-pointer hover:bg-blue-800'
             type='submit'
           >
+            {isPending && <Loader className='animate-spin' />}
             Sign Up
           </Button>
         </div>

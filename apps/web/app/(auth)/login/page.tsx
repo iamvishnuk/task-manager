@@ -18,10 +18,16 @@ import {
   InputGroupButton,
   InputGroupInput
 } from '@task-manager/ui/components/input-group';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useMutation } from '@tanstack/react-query';
+import { loginMutationFn } from '@/lib/api';
+import { toast } from 'sonner';
 
 const LoginPage = () => {
+  const router = useRouter();
+
   const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<TLoginSchema>({
@@ -32,8 +38,20 @@ const LoginPage = () => {
     }
   });
 
+  const { mutate, isPending } = useMutation({
+    mutationFn: loginMutationFn
+  });
+
   const onSubmit = (data: TLoginSchema) => {
-    console.log(data);
+    mutate(data, {
+      onSuccess: () => {
+        toast.success('Logged in Successfully');
+        router.push('/');
+      },
+      onError: (error) => {
+        toast.error('Login Error', { description: error.message });
+      }
+    });
   };
 
   return (
@@ -68,6 +86,7 @@ const LoginPage = () => {
                       type='email'
                       className='placeholder:text-xs'
                       placeholder='johndoe@example.com'
+                      disabled={isPending}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -91,6 +110,7 @@ const LoginPage = () => {
                         aria-invalid={fieldState.invalid}
                         placeholder='Password@123'
                         className='placeholder:text-xs'
+                        disabled={isPending}
                       />
                       <InputGroupAddon align='inline-end'>
                         <InputGroupButton
@@ -127,6 +147,7 @@ const LoginPage = () => {
             className='w-full bg-blue-700 text-white hover:cursor-pointer hover:bg-blue-800'
             type='submit'
           >
+            {isPending && <Loader className='animate-spin' />}
             Login
           </Button>
         </div>
