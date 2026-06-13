@@ -1,0 +1,10 @@
+{
+  "extends": "@task-manager/typescript-config/base.json",
+  "compilerOptions": {
+    "paths": {
+      "@task-manager/shared/*": ["./src/*"]
+    }
+  },
+  "include": ["."],
+  "exclude": ["node_modules", "dist"]
+}

@@ -3,7 +3,11 @@
   "compilerOptions": {
     "paths": {
       "@/*": ["./*"],
-      "@task-manager/ui/globals.css": ["../../packages/ui/src/styles/globals.css"],
+      "@task-manager/shared": ["../../packages/shared/src"],
+      "@task-manager/shared/*": ["../../packages/shared/src/*"],
+      "@task-manager/ui/globals.css": [
+        "../../packages/ui/src/styles/globals.css"
+      ],
       "@task-manager/ui/*": ["../../packages/ui/src/*"]
     },
     "plugins": [
