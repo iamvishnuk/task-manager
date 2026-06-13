@@ -2,7 +2,6 @@
   "extends": "@task-manager/typescript-config/base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",
     "lib": ["es2022"],
     "module": "CommonJS",
     "moduleResolution": "node",
@@ -13,6 +12,6 @@
       "@task-manager/shared/*": ["../../packages/shared/src/*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../../packages/shared/src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

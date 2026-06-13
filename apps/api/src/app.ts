@@ -1,9 +1,15 @@
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Application } from 'express';
 import helmet from 'helmet';
+import morgan from 'morgan';
+import './config/passport';
+import passport from 'passport';
 import { ErrorMiddleware } from './middlewares/error.middleware';
 import { NotFoundMiddleware } from './middlewares/not-found.middleware';
+import { AuthRouter } from './routes/auth.routes';
 import { HealthRouter } from './routes/health.routes';
+import { Config } from './config/env';
 
 export class App {
   public readonly express: Application;
@@ -15,7 +21,6 @@ export class App {
     this.express = express();
     this.errorMiddleware = new ErrorMiddleware();
     this.notFoundMiddleware = new NotFoundMiddleware();
-
     this.registerGlobalMiddleware();
     this.registerRoutes();
     this.registerErrorHandlers();
@@ -26,11 +31,19 @@ export class App {
     this.express.use(cors());
     this.express.use(express.json());
     this.express.use(express.urlencoded({ extended: true }));
+    this.express.use(cookieParser());
+    this.express.use(passport.initialize());
+    Config.getInstance().isDevelopment()
+      ? this.express.use(morgan('dev'))
+      : this.express.use(morgan('combined'));
   }
 
   private registerRoutes(): void {
     const healthRouter = new HealthRouter();
+    const authRouter = new AuthRouter();
+
     this.express.use('/api/v1/health', healthRouter.router);
+    this.express.use('/api/v1/auth', authRouter.router);
   }
 
   private registerErrorHandlers(): void {
