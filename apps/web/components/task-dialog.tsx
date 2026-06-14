@@ -29,6 +29,10 @@ import {
 } from '@task-manager/ui/components/select';
 import { Textarea } from '@task-manager/ui/components/textarea';
 import { Controller, useForm, type Resolver } from 'react-hook-form';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createTaskMutationFn } from '@/lib/api';
+import { toast } from 'sonner';
+import { Loader } from 'lucide-react';
 
 type TaskDialogProps = {
   open: boolean;
@@ -36,6 +40,8 @@ type TaskDialogProps = {
 };
 
 const TaskDialog = ({ open, onOpenChange }: TaskDialogProps) => {
+  const queryClient = useQueryClient();
+
   const form = useForm<Task>({
     resolver: zodResolver(taskSchema) as Resolver<Task>,
     defaultValues: {
@@ -47,14 +53,40 @@ const TaskDialog = ({ open, onOpenChange }: TaskDialogProps) => {
     }
   });
 
+  const { mutate, isPending } = useMutation({
+    mutationFn: createTaskMutationFn,
+    onSuccess: () => {
+      toast.success('Task created successfully!');
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks-stats'] });
+      form.reset({
+        title: '',
+        description: '',
+        priority: 'LOW',
+        dueDate: new Date(),
+        status: 'TODO'
+      });
+      onOpenChange(false);
+    },
+    onError: (error: any) => {
+      toast.error('Failed to create task', {
+        description: error.message || 'An unexpected error occurred.'
+      });
+    }
+  });
+
   const onSubmit = (data: Task) => {
-    console.log(data);
+    mutate(data);
   };
 
   return (
     <Dialog
       open={open}
-      onOpenChange={(open) => onOpenChange(open)}
+      onOpenChange={(open) => {
+        if (!isPending) {
+          onOpenChange(open);
+        }
+      }}
     >
       <DialogContent className='bg-white sm:max-w-md dark:bg-gray-950'>
         <DialogHeader className='border-b pb-3'>
@@ -83,6 +115,7 @@ const TaskDialog = ({ open, onOpenChange }: TaskDialogProps) => {
                       aria-invalid={fieldState.invalid}
                       placeholder='Enter task name'
                       className='placeholder:text-xs'
+                      disabled={isPending}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -102,8 +135,9 @@ const TaskDialog = ({ open, onOpenChange }: TaskDialogProps) => {
                     <Textarea
                       {...field}
                       aria-invalid={fieldState.invalid}
-                      placeholder='Enter task name'
+                      placeholder='Enter task description'
                       className='placeholder:text-xs'
+                      disabled={isPending}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -126,6 +160,7 @@ const TaskDialog = ({ open, onOpenChange }: TaskDialogProps) => {
                       aria-invalid={fieldState.invalid}
                       placeholder='Select due date'
                       className='placeholder:text-xs'
+                      disabled={isPending}
                       value={
                         field.value instanceof Date &&
                         !isNaN(field.value.getTime())
@@ -156,6 +191,7 @@ const TaskDialog = ({ open, onOpenChange }: TaskDialogProps) => {
                     <Select
                       value={field.value}
                       onValueChange={field.onChange}
+                      disabled={isPending}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder='Select Priority' />
@@ -186,6 +222,7 @@ const TaskDialog = ({ open, onOpenChange }: TaskDialogProps) => {
                     <Select
                       value={field.value}
                       onValueChange={field.onChange}
+                      disabled={isPending}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder='Select Status' />
@@ -214,6 +251,7 @@ const TaskDialog = ({ open, onOpenChange }: TaskDialogProps) => {
             <Button
               type='button'
               variant='outline'
+              disabled={isPending}
             >
               Close
             </Button>
@@ -221,8 +259,10 @@ const TaskDialog = ({ open, onOpenChange }: TaskDialogProps) => {
           <Button
             form='task-form'
             type='submit'
+            disabled={isPending}
             className='bg-blue-800 text-white hover:cursor-pointer hover:bg-blue-900'
           >
+            {isPending && <Loader className='mr-2 size-4 animate-spin' />}
             Add Task
           </Button>
         </DialogFooter>

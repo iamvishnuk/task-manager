@@ -6,7 +6,8 @@ import type { User } from '../db/schema/index';
 import type {
   CreateTaskInput,
   UpdateTaskInput,
-  TaskStatus
+  TaskStatus,
+  TaskPriority
 } from '@task-manager/shared/schemas/task';
 
 export class TaskController {
@@ -38,13 +39,20 @@ export class TaskController {
     try {
       const user = req.user as User;
       // req.query has been parsed and typed by the query middleware validation
-      const { status, page, limit } = req.query as unknown as {
-        status?: TaskStatus;
-        page: number;
-        limit: number;
-      };
+      const { status, priority, search, sort, page, limit } =
+        req.query as unknown as {
+          status?: TaskStatus;
+          priority?: TaskPriority;
+          search?: string;
+          sort?: string;
+          page: number;
+          limit: number;
+        };
       const result = await this.taskService.listTasks(user.id, {
         status,
+        priority,
+        search,
+        sort,
         page,
         limit
       });
@@ -53,6 +61,21 @@ export class TaskController {
         result,
         HttpStatus.OK,
         'Tasks retrieved successfully'
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getTaskStats(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = req.user as User;
+      const stats = await this.taskService.getTaskStats(user.id);
+      ResponseHandler.success(
+        res,
+        stats,
+        HttpStatus.OK,
+        'Task stats retrieved successfully'
       );
     } catch (error) {
       next(error);

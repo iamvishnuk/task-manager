@@ -1,11 +1,12 @@
-import { and, eq, count } from 'drizzle-orm';
+import { SQL, and, eq, count, or, ilike, sql, asc, desc } from 'drizzle-orm';
 import { db } from '../db/index';
 import { tasks } from '../db/schema/index';
 import { NotFoundError } from '../utils/error';
 import type {
   CreateTaskInput,
   UpdateTaskInput,
-  TaskStatus
+  TaskStatus,
+  TaskPriority
 } from '@task-manager/shared/schemas/task';
 
 export class TaskService {
@@ -30,18 +31,53 @@ export class TaskService {
 
   async listTasks(
     userId: string,
-    filters: { status?: TaskStatus; page: number; limit: number }
+    filters: {
+      status?: TaskStatus;
+      priority?: TaskPriority;
+      search?: string;
+      sort?: string;
+      page: number;
+      limit: number;
+    }
   ) {
     const offset = (filters.page - 1) * filters.limit;
 
-    const whereClause = filters.status
-      ? and(eq(tasks.userId, userId), eq(tasks.status, filters.status))
-      : eq(tasks.userId, userId);
+    const conditions = [eq(tasks.userId, userId)];
+
+    if (filters.status) {
+      conditions.push(eq(tasks.status, filters.status));
+    }
+    if (filters.priority) {
+      conditions.push(eq(tasks.priority, filters.priority));
+    }
+    if (filters.search) {
+      conditions.push(
+        or(
+          ilike(tasks.title, `%${filters.search}%`),
+          ilike(tasks.description, `%${filters.search}%`)
+        )!
+      );
+    }
+
+    const whereClause = and(...conditions);
+
+    // Build order by clause
+    let orderByClause: SQL = asc(tasks.dueDate); // default
+    if (filters.sort === 'dueDate_desc') {
+      orderByClause = desc(tasks.dueDate);
+    } else if (filters.sort === 'dueDate_asc') {
+      orderByClause = asc(tasks.dueDate);
+    } else if (filters.sort === 'priority_desc') {
+      orderByClause = sql`CASE ${tasks.priority} WHEN 'HIGH' THEN 3 WHEN 'MEDIUM' THEN 2 WHEN 'LOW' THEN 1 END DESC`;
+    } else if (filters.sort === 'priority_asc') {
+      orderByClause = sql`CASE ${tasks.priority} WHEN 'HIGH' THEN 3 WHEN 'MEDIUM' THEN 2 WHEN 'LOW' THEN 1 END ASC`;
+    }
 
     const tasksList = await db
       .select()
       .from(tasks)
       .where(whereClause)
+      .orderBy(orderByClause)
       .limit(filters.limit)
       .offset(offset);
 
@@ -61,6 +97,33 @@ export class TaskService {
         limit: filters.limit,
         totalPages
       }
+    };
+  }
+
+  async getTaskStats(userId: string) {
+    const [todo] = await db
+      .select({ count: count() })
+      .from(tasks)
+      .where(and(eq(tasks.userId, userId), eq(tasks.status, 'TODO')));
+    const [inProgress] = await db
+      .select({ count: count() })
+      .from(tasks)
+      .where(and(eq(tasks.userId, userId), eq(tasks.status, 'IN_PROGRESS')));
+    const [done] = await db
+      .select({ count: count() })
+      .from(tasks)
+      .where(and(eq(tasks.userId, userId), eq(tasks.status, 'DONE')));
+
+    const todoCount = todo ? Number(todo.count) : 0;
+    const inProgressCount = inProgress ? Number(inProgress.count) : 0;
+    const doneCount = done ? Number(done.count) : 0;
+    const totalCount = todoCount + inProgressCount + doneCount;
+
+    return {
+      TODO: todoCount,
+      IN_PROGRESS: inProgressCount,
+      DONE: doneCount,
+      total: totalCount
     };
   }
 

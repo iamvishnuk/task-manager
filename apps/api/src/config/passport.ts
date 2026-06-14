@@ -12,7 +12,16 @@ const config = Config.getInstance();
 passport.use(
   new JwtStrategy(
     {
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        (req) => {
+          let token = null;
+          if (req && req.cookies) {
+            token = req.cookies['accessToken'] as string | null;
+          }
+          return token;
+        }
+      ]),
       secretOrKey: config.jwt_secret
     },
     async (payload: JwtPayload, done) => {

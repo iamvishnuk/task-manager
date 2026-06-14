@@ -1,23 +1,24 @@
 import { type Task, type TaskStatus } from '@task-manager/shared/schemas/task';
 import { Badge } from '@task-manager/ui/components/badge';
-import { Button } from '@task-manager/ui/components/button';
 import { cn } from '@task-manager/ui/lib/utils';
-import { Calendar, CheckCircle2, Circle, Clock } from 'lucide-react';
+import { Calendar, CheckCircle2, Circle, Clock, Trash2 } from 'lucide-react';
 
 type TaskCardProps = {
   task: Task & { id: string };
   toggleTaskStatus: (id: string) => void;
+  deleteTask: (id: string) => void;
 };
 
-const TaskCard = ({ task, toggleTaskStatus }: TaskCardProps) => {
+const TaskCard = ({ task, toggleTaskStatus, deleteTask }: TaskCardProps) => {
   const getDueDateStyle = (
-    date: Date | null | undefined,
+    date: Date | string | null | undefined,
     status: TaskStatus
   ) => {
     if (!date || status === 'DONE') return 'text-slate-500 dark:text-slate-400';
+    const d = typeof date === 'string' ? new Date(date) : date;
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const due = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const due = new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
     if (due < today) {
       return 'text-red-500 dark:text-red-400 font-semibold bg-red-500/10 px-2 py-0.5 rounded-md';
@@ -28,8 +29,7 @@ const TaskCard = ({ task, toggleTaskStatus }: TaskCardProps) => {
     return 'text-slate-600 dark:text-slate-300';
   };
 
-  const formatDueDate = (date: Date | null | undefined) => {
-    if (!date) return 'No due date';
+  const formatDueDate = (date: Date) => {
     const d = new Date(date);
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -127,17 +127,26 @@ const TaskCard = ({ task, toggleTaskStatus }: TaskCardProps) => {
           </span>
         </div>
 
-        {/* Action link */}
-        <button
-          onClick={() => toggleTaskStatus(task.id)}
-          className='text-xs font-semibold text-indigo-600 hover:cursor-pointer hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300'
-        >
-          {task.status === 'DONE'
-            ? 'Mark Incomplete'
-            : task.status === 'IN_PROGRESS'
-              ? 'Mark Done'
-              : 'Start Task'}
-        </button>
+        {/* Actions */}
+        <div className='flex items-center gap-2'>
+          <button
+            onClick={() => toggleTaskStatus(task.id)}
+            className='text-xs font-semibold text-indigo-600 hover:cursor-pointer hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300'
+          >
+            {task.status === 'DONE'
+              ? 'Mark Incomplete'
+              : task.status === 'IN_PROGRESS'
+                ? 'Mark Done'
+                : 'Start Task'}
+          </button>
+          <button
+            onClick={() => deleteTask(task.id)}
+            className='rounded-md p-1.5 text-slate-400 transition-colors hover:cursor-pointer hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400'
+            title='Delete Task'
+          >
+            <Trash2 className='size-3.5' />
+          </button>
+        </div>
       </div>
     </div>
   );
