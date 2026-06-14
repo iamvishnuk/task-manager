@@ -1,4 +1,7 @@
-import { TLoginSchema, TRegisterSchema } from '@task-manager/shared';
+import {
+  type TLoginSchema,
+  type TRegisterSchema
+} from '@task-manager/shared/schemas/user';
 import API from './axios-client';
 
 export const registerMutationFn = (data: TRegisterSchema) =>

@@ -9,7 +9,10 @@ import {
 } from '../utils/jwt';
 import { ConflictError, UnauthorizedError } from '../utils/error';
 import { Config } from '../config/env';
-import type { TLoginSchema, TRegisterSchema } from '@task-manager/shared';
+import type {
+  TLoginSchema,
+  TRegisterSchema
+} from '@task-manager/shared/schemas/user';
 
 const SALT_ROUNDS = 10;
 

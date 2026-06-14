@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { registerSchema, loginSchema } from '@task-manager/shared';
+import { registerSchema, loginSchema } from '@task-manager/shared/schemas/user';
 import { AuthController } from '../controllers/auth.controller';
 import { authenticate } from '../middlewares/authenticate.middleware';
 import { validateRequest } from '../middlewares/validate.middleware';

@@ -4,7 +4,10 @@ import { ResponseHandler } from '../utils/response-handler';
 import { HttpStatus } from '../config/http';
 import { BadRequestError } from '../utils/error';
 import type { User } from '../db/schema/index';
-import type { TLoginSchema, TRegisterSchema } from '@task-manager/shared';
+import type {
+  TLoginSchema,
+  TRegisterSchema
+} from '@task-manager/shared/schemas/user';
 
 const authService = new AuthService();
 
