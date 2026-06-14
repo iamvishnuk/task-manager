@@ -9,6 +9,7 @@ import { ErrorMiddleware } from './middlewares/error.middleware';
 import { NotFoundMiddleware } from './middlewares/not-found.middleware';
 import { AuthRouter } from './routes/auth.routes';
 import { HealthRouter } from './routes/health.routes';
+import { TaskRouter } from './routes/task.routes';
 import { Config } from './config/env';
 
 export class App {
@@ -46,9 +47,11 @@ export class App {
   private registerRoutes(): void {
     const healthRouter = new HealthRouter();
     const authRouter = new AuthRouter();
+    const taskRouter = new TaskRouter();
 
     this.express.use('/api/v1/health', healthRouter.router);
     this.express.use('/api/v1/auth', authRouter.router);
+    this.express.use('/api/v1/tasks', taskRouter.router);
   }
 
   private registerErrorHandlers(): void {
