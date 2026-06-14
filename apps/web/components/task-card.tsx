@@ -1,15 +1,28 @@
 import { type Task, type TaskStatus } from '@task-manager/shared/schemas/task';
 import { Badge } from '@task-manager/ui/components/badge';
 import { cn } from '@task-manager/ui/lib/utils';
-import { Calendar, CheckCircle2, Circle, Clock, Trash2 } from 'lucide-react';
+import {
+  Calendar,
+  CheckCircle2,
+  Circle,
+  Clock,
+  Trash2,
+  Pencil
+} from 'lucide-react';
 
 type TaskCardProps = {
   task: Task & { id: string };
   toggleTaskStatus: (id: string) => void;
   deleteTask: (id: string) => void;
+  onEdit: (task: Task & { id: string }) => void;
 };
 
-const TaskCard = ({ task, toggleTaskStatus, deleteTask }: TaskCardProps) => {
+const TaskCard = ({
+  task,
+  toggleTaskStatus,
+  deleteTask,
+  onEdit
+}: TaskCardProps) => {
   const getDueDateStyle = (
     date: Date | string | null | undefined,
     status: TaskStatus
@@ -138,6 +151,13 @@ const TaskCard = ({ task, toggleTaskStatus, deleteTask }: TaskCardProps) => {
               : task.status === 'IN_PROGRESS'
                 ? 'Mark Done'
                 : 'Start Task'}
+          </button>
+          <button
+            onClick={() => onEdit(task)}
+            className='rounded-md p-1.5 text-slate-400 transition-colors hover:cursor-pointer hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800/60 dark:hover:text-slate-200'
+            title='Edit Task'
+          >
+            <Pencil className='size-3.5' />
           </button>
           <button
             onClick={() => deleteTask(task.id)}

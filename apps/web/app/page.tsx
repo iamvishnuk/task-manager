@@ -91,6 +91,10 @@ export default function Page({
   };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<
+    | (import('@task-manager/shared/schemas/task').Task & { id: string })
+    | undefined
+  >(undefined);
   const ITEMS_PER_PAGE = 6;
 
   // 1. Fetch Task Status Metrics from backend
@@ -107,7 +111,12 @@ export default function Page({
   };
 
   // 2. Fetch Tasks list (paginated, filtered, searched, sorted) from backend
-  const { data: tasksQueryData, isLoading } = useQuery({
+  const {
+    data: tasksQueryData,
+    isLoading,
+    isError,
+    error
+  } = useQuery({
     queryKey: [
       'tasks',
       statusFilter,
@@ -192,7 +201,10 @@ export default function Page({
         <WorkspaceHeader
           theme={resolvedTheme}
           setTheme={setTheme}
-          onNewTaskClick={() => setIsModalOpen(true)}
+          onNewTaskClick={() => {
+            setEditingTask(undefined);
+            setIsModalOpen(true);
+          }}
         />
 
         {/* Filters & Control Panel */}
@@ -212,7 +224,7 @@ export default function Page({
           stats={stats}
         />
 
-        {/* Tasks View: Loading vs List vs Empty */}
+        {/* Tasks View: Loading vs Error vs List vs Empty */}
         {isLoading ? (
           <div className='flex h-64 items-center justify-center rounded-2xl border border-slate-200/50 bg-white/50 dark:border-slate-800/40 dark:bg-gray-900/50'>
             <div className='flex flex-col items-center gap-3'>
@@ -222,6 +234,26 @@ export default function Page({
               </p>
             </div>
           </div>
+        ) : isError ? (
+          <div className='flex h-64 items-center justify-center rounded-2xl border border-red-200/50 bg-red-50/20 dark:border-red-900/30 dark:bg-red-950/10'>
+            <div className='flex flex-col items-center gap-3 text-center'>
+              <p className='text-sm font-semibold text-red-600 dark:text-red-400'>
+                Failed to load tasks
+              </p>
+              <p className='max-w-md text-xs text-red-500/80 dark:text-red-400/80'>
+                {(error as any)?.message ||
+                  'An unexpected error occurred while fetching tasks. Please try again.'}
+              </p>
+              <button
+                onClick={() =>
+                  queryClient.invalidateQueries({ queryKey: ['tasks'] })
+                }
+                className='mt-2 rounded-lg bg-red-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:cursor-pointer hover:bg-red-500'
+              >
+                Retry
+              </button>
+            </div>
+          </div>
         ) : tasksList.length > 0 ? (
           <div className='grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3'>
             {tasksList.map((task) => (
@@ -229,6 +261,10 @@ export default function Page({
                 task={task}
                 toggleTaskStatus={toggleTaskStatus}
                 deleteTask={(id) => deleteTask(id)}
+                onEdit={(task) => {
+                  setEditingTask(task);
+                  setIsModalOpen(true);
+                }}
                 key={task.id}
               />
             ))}
@@ -255,7 +291,13 @@ export default function Page({
 
       <TaskDialog
         open={isModalOpen}
-        onOpenChange={(open) => setIsModalOpen(open)}
+        onOpenChange={(open) => {
+          setIsModalOpen(open);
+          if (!open) {
+            setEditingTask(undefined);
+          }
+        }}
+        task={editingTask}
       />
     </div>
   );

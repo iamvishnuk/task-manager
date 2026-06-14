@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { taskSchema, type Task } from '@task-manager/shared/schemas/task';
 import { Button } from '@task-manager/ui/components/button';
@@ -30,17 +31,19 @@ import {
 import { Textarea } from '@task-manager/ui/components/textarea';
 import { Controller, useForm, type Resolver } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createTaskMutationFn } from '@/lib/api';
+import { createTaskMutationFn, updateTaskMutationFn } from '@/lib/api';
 import { toast } from 'sonner';
 import { Loader } from 'lucide-react';
 
 type TaskDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  task?: Task & { id: string };
 };
 
-const TaskDialog = ({ open, onOpenChange }: TaskDialogProps) => {
+const TaskDialog = ({ open, onOpenChange, task }: TaskDialogProps) => {
   const queryClient = useQueryClient();
+  const isEditMode = !!task;
 
   const form = useForm<Task>({
     resolver: zodResolver(taskSchema) as Resolver<Task>,
@@ -53,7 +56,30 @@ const TaskDialog = ({ open, onOpenChange }: TaskDialogProps) => {
     }
   });
 
-  const { mutate, isPending } = useMutation({
+  // Sync form default values when the dialog opens or task changes
+  useEffect(() => {
+    if (open) {
+      if (task) {
+        form.reset({
+          title: task.title,
+          description: task.description,
+          priority: task.priority,
+          dueDate: task.dueDate ? new Date(task.dueDate) : new Date(),
+          status: task.status
+        });
+      } else {
+        form.reset({
+          title: '',
+          description: '',
+          priority: 'LOW',
+          dueDate: new Date(),
+          status: 'TODO'
+        });
+      }
+    }
+  }, [open, task, form]);
+
+  const { mutate: createTask, isPending: isCreating } = useMutation({
     mutationFn: createTaskMutationFn,
     onSuccess: () => {
       toast.success('Task created successfully!');
@@ -75,8 +101,29 @@ const TaskDialog = ({ open, onOpenChange }: TaskDialogProps) => {
     }
   });
 
+  const { mutate: updateTask, isPending: isUpdating } = useMutation({
+    mutationFn: updateTaskMutationFn,
+    onSuccess: () => {
+      toast.success('Task updated successfully!');
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks-stats'] });
+      onOpenChange(false);
+    },
+    onError: (error: any) => {
+      toast.error('Failed to update task', {
+        description: error.message || 'An unexpected error occurred.'
+      });
+    }
+  });
+
+  const isPending = isCreating || isUpdating;
+
   const onSubmit = (data: Task) => {
-    mutate(data);
+    if (isEditMode && task) {
+      updateTask({ id: task.id, data });
+    } else {
+      createTask(data);
+    }
   };
 
   return (
@@ -90,9 +137,11 @@ const TaskDialog = ({ open, onOpenChange }: TaskDialogProps) => {
     >
       <DialogContent className='bg-white sm:max-w-md dark:bg-gray-950'>
         <DialogHeader className='border-b pb-3'>
-          <DialogTitle>Add Task</DialogTitle>
+          <DialogTitle>{isEditMode ? 'Edit Task' : 'Add Task'}</DialogTitle>
           <DialogDescription>
-            Fill out the details below to add a new task to your playground
+            {isEditMode
+              ? 'Modify the details of your task below'
+              : 'Fill out the details below to add a new task to your playground'}
           </DialogDescription>
         </DialogHeader>
         <div>
@@ -263,7 +312,7 @@ const TaskDialog = ({ open, onOpenChange }: TaskDialogProps) => {
             className='bg-blue-800 text-white hover:cursor-pointer hover:bg-blue-900'
           >
             {isPending && <Loader className='mr-2 size-4 animate-spin' />}
-            Add Task
+            {isEditMode ? 'Save Changes' : 'Add Task'}
           </Button>
         </DialogFooter>
       </DialogContent>

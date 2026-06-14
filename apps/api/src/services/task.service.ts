@@ -71,6 +71,10 @@ export class TaskService {
       orderByClause = sql`CASE ${tasks.priority} WHEN 'HIGH' THEN 3 WHEN 'MEDIUM' THEN 2 WHEN 'LOW' THEN 1 END DESC`;
     } else if (filters.sort === 'priority_asc') {
       orderByClause = sql`CASE ${tasks.priority} WHEN 'HIGH' THEN 3 WHEN 'MEDIUM' THEN 2 WHEN 'LOW' THEN 1 END ASC`;
+    } else if (filters.sort === 'createdAt_desc') {
+      orderByClause = desc(tasks.createdAt);
+    } else if (filters.sort === 'createdAt_asc') {
+      orderByClause = asc(tasks.createdAt);
     }
 
     const tasksList = await db

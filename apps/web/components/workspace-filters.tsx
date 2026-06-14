@@ -107,6 +107,12 @@ const WorkspaceFilters = ({
                   <SelectItem value='priority_asc'>
                     Priority: Low to High
                   </SelectItem>
+                  <SelectItem value='createdAt_desc'>
+                    Created Date: Newest First
+                  </SelectItem>
+                  <SelectItem value='createdAt_asc'>
+                    Created Date: Oldest First
+                  </SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
