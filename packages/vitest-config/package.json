@@ -1,0 +1,13 @@
+{
+  "name": "@task-manager/vitest-config",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./node": "./node.ts",
+    "./web": "./web.ts"
+  },
+  "peerDependencies": {
+    "vitest": ">=1.0.0"
+  }
+}

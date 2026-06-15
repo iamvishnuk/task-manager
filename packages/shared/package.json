@@ -6,7 +6,9 @@
   "scripts": {
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "zod": "^4.4.3"
@@ -14,8 +16,10 @@
   "devDependencies": {
     "@task-manager/eslint-config": "workspace:*",
     "@task-manager/typescript-config": "workspace:*",
+    "@task-manager/vitest-config": "workspace:*",
     "eslint": "^9",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.9"
   },
   "exports": {
     "./*": "./src/*.ts"

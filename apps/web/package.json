@@ -9,7 +9,9 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
@@ -29,10 +31,13 @@
     "@tailwindcss/postcss": "^4",
     "@task-manager/eslint-config": "workspace:^",
     "@task-manager/typescript-config": "workspace:*",
+    "@task-manager/vitest-config": "workspace:*",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "typescript": "^5"
+    "happy-dom": "^20.10.3",
+    "typescript": "^5",
+    "vitest": "^4.1.9"
   }
 }

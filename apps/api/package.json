@@ -8,6 +8,8 @@
     "start": "node dist/server.js",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
@@ -38,6 +40,7 @@
   "devDependencies": {
     "@task-manager/eslint-config": "workspace:*",
     "@task-manager/typescript-config": "workspace:*",
+    "@task-manager/vitest-config": "workspace:*",
     "@types/bcryptjs": "^3.0.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.17",
@@ -50,6 +53,7 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "tsx": "^4.19.4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.9"
   }
 }

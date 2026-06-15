@@ -16,6 +16,10 @@
     "typecheck": {
       "dependsOn": ["^typecheck"]
     },
+    "test": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**/*.ts", "src/**/*.tsx", "vitest.config.ts"]
+    },
     "dev": {
       "cache": false,
       "persistent": true
