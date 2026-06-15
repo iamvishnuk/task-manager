@@ -141,6 +141,23 @@ import { Button } from '@workspace/ui/components/button';
 
 ---
 
+## ⚙️ CI / GitHub Actions
+
+A GitHub Actions workflow is configured at [`.github/workflows/ci.yml`](.github/workflows/ci.yml) and runs automatically on every push or pull request targeting `main` or `develop`.
+
+### What it does
+
+| Step                 | Command                          |
+| -------------------- | -------------------------------- |
+| Install dependencies | `pnpm install --frozen-lockfile` |
+| Lint                 | `pnpm lint`                      |
+| Typecheck            | `pnpm typecheck`                 |
+| Tests                | `pnpm test`                      |
+
+> Concurrent runs on the same branch are automatically cancelled to avoid wasting CI minutes.
+
+---
+
 ## 🎯 Assumptions & Trade-offs
 
 Here are key assumptions and technical trade-offs made in this project setup:
