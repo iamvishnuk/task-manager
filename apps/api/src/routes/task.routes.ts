@@ -83,6 +83,13 @@ export class TaskRouter {
       this.controller.getTaskById.bind(this.controller)
     );
 
+    // GET /tasks/:id/history — fetch task change history
+    this.router.get(
+      '/:id/history',
+      validateParams(paramSchema),
+      this.controller.getTaskHistory.bind(this.controller)
+    );
+
     // PATCH /tasks/:id — update a task
     this.router.patch(
       '/:id',

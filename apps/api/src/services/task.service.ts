@@ -1,6 +1,6 @@
 import { SQL, and, eq, count, or, ilike, sql, asc, desc } from 'drizzle-orm';
 import { db } from '../db/index';
-import { tasks } from '../db/schema/index';
+import { tasks, taskHistory, users } from '../db/schema/index';
 import { NotFoundError } from '../utils/error';
 import { getStorageService } from './storage.service';
 import type {
@@ -29,6 +29,16 @@ export class TaskService {
     if (!task) {
       throw new Error('Failed to create task');
     }
+
+    // Log creation history
+    await db.insert(taskHistory).values({
+      taskId: task.id,
+      userId,
+      action: 'CREATE',
+      description: 'Task created',
+      changes: []
+    });
+
     return task;
   }
 
@@ -161,6 +171,58 @@ export class TaskService {
       }
     }
 
+    // Compare fields for history log
+    const changes: { field: string; from: any; to: any }[] = [];
+    const compareDates = (d1: any, d2: any) => {
+      if (!d1 && !d2) return true;
+      if (!d1 || !d2) return false;
+      return new Date(d1).getTime() === new Date(d2).getTime();
+    };
+
+    if (data.title !== undefined && data.title !== existing.title) {
+      changes.push({ field: 'title', from: existing.title, to: data.title });
+    }
+    if (
+      data.description !== undefined &&
+      data.description !== existing.description
+    ) {
+      changes.push({
+        field: 'description',
+        from: existing.description,
+        to: data.description
+      });
+    }
+    if (data.status !== undefined && data.status !== existing.status) {
+      changes.push({ field: 'status', from: existing.status, to: data.status });
+    }
+    if (data.priority !== undefined && data.priority !== existing.priority) {
+      changes.push({
+        field: 'priority',
+        from: existing.priority,
+        to: data.priority
+      });
+    }
+    if (
+      data.dueDate !== undefined &&
+      !compareDates(data.dueDate, existing.dueDate)
+    ) {
+      changes.push({
+        field: 'due date',
+        from: existing.dueDate,
+        to: data.dueDate
+      });
+    }
+    if (
+      data.attachmentUrl !== undefined &&
+      data.attachmentUrl !== existing.attachmentUrl
+    ) {
+      changes.push({
+        field: 'attachment',
+        from: existing.attachmentName || null,
+        to: data.attachmentName || null
+      });
+    }
+
     const [task] = await db
       .update(tasks)
       .set({
@@ -173,6 +235,28 @@ export class TaskService {
     if (!task) {
       throw new NotFoundError('Task not found');
     }
+
+    // Log update history
+    if (changes.length > 0) {
+      let description = 'Updated task details';
+      if (changes.length === 1) {
+        const c = changes[0]!;
+        const formatVal = (v: any) =>
+          v === null ? 'none' : String(v).replace('_', ' ');
+        description = `Changed ${c.field} from "${formatVal(c.from)}" to "${formatVal(c.to)}"`;
+      } else {
+        description = `Updated fields: ${changes.map((c) => c.field).join(', ')}`;
+      }
+
+      await db.insert(taskHistory).values({
+        taskId: task.id,
+        userId,
+        action: 'UPDATE',
+        description,
+        changes
+      });
+    }
+
     return task;
   }
 
@@ -192,5 +276,28 @@ export class TaskService {
     }
 
     return task;
+  }
+
+  async getTaskHistory(userId: string, taskId: string) {
+    // Validate task access
+    await this.getTaskById(userId, taskId);
+
+    const logs = await db
+      .select({
+        id: taskHistory.id,
+        taskId: taskHistory.taskId,
+        userId: taskHistory.userId,
+        action: taskHistory.action,
+        description: taskHistory.description,
+        changes: taskHistory.changes,
+        createdAt: taskHistory.createdAt,
+        userEmail: users.email
+      })
+      .from(taskHistory)
+      .leftJoin(users, eq(taskHistory.userId, users.id))
+      .where(eq(taskHistory.taskId, taskId))
+      .orderBy(desc(taskHistory.createdAt));
+
+    return logs;
   }
 }

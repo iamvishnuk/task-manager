@@ -141,6 +141,10 @@ const TaskDialog = ({ open, onOpenChange, task }: TaskDialogProps) => {
       toast.success('Task updated successfully!');
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       queryClient.invalidateQueries({ queryKey: ['tasks-stats'] });
+      if (task?.id) {
+        queryClient.invalidateQueries({ queryKey: ['task', task.id] });
+        queryClient.invalidateQueries({ queryKey: ['task-history', task.id] });
+      }
       onOpenChange(false);
     },
     onError: (error: any) => {

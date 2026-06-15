@@ -99,3 +99,24 @@ export const getTaskByIdQueryFn = (
   message: string;
   data: Task & { id: string; createdAt: string; updatedAt: string };
 }> => API.get(`/tasks/${id}`);
+
+export interface TaskHistoryItem {
+  id: string;
+  taskId: string;
+  userId: string;
+  action: 'CREATE' | 'UPDATE';
+  description: string;
+  changes: { field: string; from: any; to: any }[];
+  createdAt: string;
+  userEmail: string | null;
+}
+
+export interface GetTaskHistoryResponse {
+  success: boolean;
+  message: string;
+  data: TaskHistoryItem[];
+}
+
+export const getTaskHistoryQueryFn = (
+  id: string
+): Promise<GetTaskHistoryResponse> => API.get(`/tasks/${id}/history`);

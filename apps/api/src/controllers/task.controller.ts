@@ -166,4 +166,20 @@ export class TaskController {
       next(error);
     }
   }
+
+  async getTaskHistory(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = req.user as User;
+      const { id } = req.params as { id: string };
+      const history = await this.taskService.getTaskHistory(user.id, id);
+      ResponseHandler.success(
+        res,
+        history,
+        HttpStatus.OK,
+        'Task history retrieved successfully'
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
 }

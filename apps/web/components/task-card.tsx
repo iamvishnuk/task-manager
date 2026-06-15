@@ -11,6 +11,7 @@ import {
   Pencil,
   Paperclip
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 type TaskCardProps = {
   task: Task & { id: string };
@@ -25,6 +26,8 @@ const TaskCard = ({
   deleteTask,
   onEdit
 }: TaskCardProps) => {
+  const router = useRouter();
+
   const getAttachmentUrl = (pathUrl: string) => {
     if (pathUrl.startsWith('http://') || pathUrl.startsWith('https://'))
       return pathUrl;
@@ -84,6 +87,7 @@ const TaskCard = ({
         'group flex flex-col justify-between rounded-2xl border border-slate-200/50 bg-white/95 p-5 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-indigo-500/20 hover:shadow-md dark:border-slate-800/40 dark:bg-gray-900/95 dark:hover:border-indigo-400/20',
         task.status === 'DONE' && 'opacity-85 hover:opacity-100'
       )}
+      onClick={() => router.push(`/tasks/${task.id}`)}
     >
       <div>
         {/* Top line badges */}
@@ -178,7 +182,10 @@ const TaskCard = ({
         {/* Actions */}
         <div className='flex items-center gap-2'>
           <button
-            onClick={() => toggleTaskStatus(task.id)}
+            onClick={(e) => {
+              toggleTaskStatus(task.id);
+              e.stopPropagation();
+            }}
             className='text-xs font-semibold text-indigo-600 hover:cursor-pointer hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300'
           >
             {task.status === 'DONE'
@@ -188,14 +195,20 @@ const TaskCard = ({
                 : 'Start Task'}
           </button>
           <button
-            onClick={() => onEdit(task)}
+            onClick={(e) => {
+              onEdit(task);
+              e.stopPropagation();
+            }}
             className='rounded-md p-1.5 text-slate-400 transition-colors hover:cursor-pointer hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800/60 dark:hover:text-slate-200'
             title='Edit Task'
           >
             <Pencil className='size-3.5' />
           </button>
           <button
-            onClick={() => deleteTask(task.id)}
+            onClick={(e) => {
+              deleteTask(task.id);
+              e.stopPropagation();
+            }}
             className='rounded-md p-1.5 text-slate-400 transition-colors hover:cursor-pointer hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400'
             title='Delete Task'
           >
