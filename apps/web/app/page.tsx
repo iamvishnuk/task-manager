@@ -19,12 +19,14 @@ import {
   deleteTaskMutationFn
 } from '@/lib/api';
 import TaskEmptyState from '@/components/task-empty-state';
+import { useTaskSSE } from '@/hooks/use-task-sse';
 
 export default function Page({
   searchParams
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+  useTaskSSE();
   const resolvedSearchParams = use(searchParams);
   const { resolvedTheme, setTheme } = useTheme();
   const queryClient = useQueryClient();

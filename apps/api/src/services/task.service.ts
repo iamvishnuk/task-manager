@@ -3,6 +3,7 @@ import { db } from '../db/index';
 import { tasks, taskHistory, users } from '../db/schema/index';
 import { NotFoundError } from '../utils/error';
 import { getStorageService } from './storage.service';
+import { SSEConnectionManager } from '../utils/sse-connection-manager';
 import type {
   CreateTaskInput,
   UpdateTaskInput,
@@ -37,6 +38,11 @@ export class TaskService {
       action: 'CREATE',
       description: 'Task created',
       changes: []
+    });
+
+    SSEConnectionManager.getInstance().notifyUser(userId, {
+      type: 'TASK_CHANGED',
+      data: { action: 'CREATE', taskId: task.id }
     });
 
     return task;
@@ -257,6 +263,11 @@ export class TaskService {
       });
     }
 
+    SSEConnectionManager.getInstance().notifyUser(userId, {
+      type: 'TASK_CHANGED',
+      data: { action: 'UPDATE', taskId: task.id }
+    });
+
     return task;
   }
 
@@ -274,6 +285,11 @@ export class TaskService {
       const storageService = getStorageService();
       await storageService.deleteFile(task.attachmentUrl);
     }
+
+    SSEConnectionManager.getInstance().notifyUser(userId, {
+      type: 'TASK_CHANGED',
+      data: { action: 'DELETE', taskId: task.id }
+    });
 
     return task;
   }

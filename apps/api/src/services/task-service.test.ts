@@ -5,6 +5,17 @@ import { TaskService } from './task.service';
 const mockInsertImpl = vi.fn();
 const mockSelectImpl = vi.fn();
 
+// Mock SSE Connection Manager
+vi.mock('../utils/sse-connection-manager', () => {
+  return {
+    SSEConnectionManager: {
+      getInstance: () => ({
+        notifyUser: vi.fn()
+      })
+    }
+  };
+});
+
 vi.mock('../db/index', () => {
   const chainInsert = {
     values: vi.fn().mockReturnThis(),

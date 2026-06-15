@@ -3,6 +3,7 @@ import { TaskService } from '../services/task.service';
 import { ResponseHandler } from '../utils/response-handler';
 import { getStorageService } from '../services/storage.service';
 import { HttpStatus } from '../config/http';
+import { SSEConnectionManager } from '../utils/sse-connection-manager';
 import type { User } from '../db/schema/index';
 import type {
   CreateTaskInput,
@@ -178,6 +179,28 @@ export class TaskController {
         HttpStatus.OK,
         'Task history retrieved successfully'
       );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getTaskEvents(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = req.user as User;
+
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+        'X-Accel-Buffering': 'no'
+      });
+
+      const sseManager = SSEConnectionManager.getInstance();
+      sseManager.addConnection(user.id, res);
+
+      req.on('close', () => {
+        sseManager.removeConnection(user.id, res);
+      });
     } catch (error) {
       next(error);
     }

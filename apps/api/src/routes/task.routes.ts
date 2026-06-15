@@ -49,6 +49,13 @@ export class TaskRouter {
       this.controller.getTaskStats.bind(this.controller)
     );
 
+    // GET /tasks/events — real-time Server-Sent Events stream
+    // Must be registered BEFORE /:id to prevent matching events as an ID parameter
+    this.router.get(
+      '/events',
+      this.controller.getTaskEvents.bind(this.controller)
+    );
+
     // GET /tasks — list tasks with pagination, filtering, searching and sorting
     const listQuerySchema = z.object({
       status: TaskStatus.optional(),

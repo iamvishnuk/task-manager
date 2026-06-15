@@ -20,12 +20,14 @@ import {
   TaskDetailLoading,
   TaskDetailError
 } from '@/components/task-detail/task-detail-fallback';
+import { useTaskSSE } from '@/hooks/use-task-sse';
 
 export default function TaskDetailPage({
   params
 }: {
   params: Promise<{ id: string }>;
 }) {
+  useTaskSSE();
   const resolvedParams = use(params);
   const taskId = resolvedParams.id;
   const router = useRouter();
