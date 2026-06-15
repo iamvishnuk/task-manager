@@ -12,12 +12,12 @@ import WorkspaceHeader from '@/components/workspace-header';
 import WorkspaceFilters from '@/components/workspace-filters';
 import WorkspacePagination from '@/components/workspace-pagination';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/components/auth-provider';
 import {
   getTasksQueryFn,
   getTasksStatsQueryFn,
   updateTaskMutationFn,
-  deleteTaskMutationFn,
-  getMeQueryFn
+  deleteTaskMutationFn
 } from '@/lib/api';
 import TaskEmptyState from '@/components/task-empty-state';
 import { useTaskSSE } from '@/hooks/use-task-sse';
@@ -28,13 +28,11 @@ export default function Page({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   useTaskSSE();
-
-  // Fetch current user details
-  const { data: userProfileData } = useQuery({
-    queryKey: ['user-me'],
-    queryFn: getMeQueryFn
-  });
-  const currentUser = userProfileData?.data;
+  const {
+    user: currentUser,
+    isLoading: isAuthLoading,
+    isLoggingOut
+  } = useAuth();
 
   const resolvedSearchParams = use(searchParams);
   const { resolvedTheme, setTheme } = useTheme();
@@ -205,6 +203,21 @@ export default function Page({
     }
   };
 
+  if (isAuthLoading || isLoggingOut) {
+    return (
+      <div className='flex min-h-svh w-full items-center justify-center bg-slate-50/70 dark:bg-gray-950'>
+        <div className='flex flex-col items-center gap-3'>
+          <Loader2 className='size-8 animate-spin text-blue-900 dark:text-blue-600' />
+          <p className='text-xs text-slate-500 dark:text-slate-400'>
+            {isLoggingOut
+              ? 'Logging you out securely...'
+              : 'Loading your workspace...'}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className='min-h-svh w-full bg-slate-50/70 text-slate-900 transition-colors duration-300 dark:bg-gray-950 dark:text-gray-50'>
       <div className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
@@ -216,7 +229,6 @@ export default function Page({
             setEditingTask(undefined);
             setIsModalOpen(true);
           }}
-          currentUser={currentUser}
         />
 
         {/* Filters & Control Panel */}

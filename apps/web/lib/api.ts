@@ -15,6 +15,12 @@ export const registerMutationFn = (data: TRegisterSchema) =>
 export const loginMutationFn = (data: TLoginSchema) =>
   API.post('/auth/login', data);
 
+export const logoutMutationFn = (): Promise<{
+  success: boolean;
+  message: string;
+  data: null;
+}> => API.post('/auth/logout');
+
 export interface UserProfile {
   id: string;
   name: string;

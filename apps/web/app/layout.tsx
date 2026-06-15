@@ -4,6 +4,7 @@ import '@task-manager/ui/globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import { cn } from '@task-manager/ui/lib/utils';
 import QueryProvider from '@/components/query-provider';
+import { AuthProvider } from '@/components/auth-provider';
 import { Toaster } from '@/components/sonner';
 import { Metadata } from 'next';
 
@@ -46,7 +47,9 @@ export default function RootLayout({
     >
       <body className='w-full max-w-svw overflow-x-hidden bg-white dark:bg-gray-950'>
         <ThemeProvider>
-          <QueryProvider>{children}</QueryProvider>
+          <QueryProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </QueryProvider>
           <Toaster
             richColors
             position='bottom-right'

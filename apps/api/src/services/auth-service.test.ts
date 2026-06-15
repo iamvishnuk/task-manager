@@ -161,4 +161,14 @@ describe('AuthService', () => {
       expect(result.user.email).toBe(dbUser.email);
     });
   });
+
+  describe('logout', () => {
+    it('should delete sessions of the user from the database', async () => {
+      mockDeleteImpl.mockResolvedValueOnce([]);
+
+      await authService.logout('user-id');
+
+      expect(mockDeleteImpl).toHaveBeenCalledTimes(1);
+    });
+  });
 });
