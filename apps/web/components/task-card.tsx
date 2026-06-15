@@ -7,7 +7,8 @@ import {
   Circle,
   Clock,
   Trash2,
-  Pencil
+  Pencil,
+  Paperclip
 } from 'lucide-react';
 
 type TaskCardProps = {
@@ -23,6 +24,19 @@ const TaskCard = ({
   deleteTask,
   onEdit
 }: TaskCardProps) => {
+  const getAttachmentUrl = (pathUrl: string) => {
+    if (pathUrl.startsWith('http://') || pathUrl.startsWith('https://'))
+      return pathUrl;
+    const apiUrl =
+      process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+    try {
+      const origin = new URL(apiUrl).origin;
+      return `${origin}${pathUrl}`;
+    } catch {
+      return pathUrl;
+    }
+  };
+
   const getDueDateStyle = (
     date: Date | string | null | undefined,
     status: TaskStatus
@@ -128,6 +142,21 @@ const TaskCard = ({
           <p className='mt-2 line-clamp-3 text-xs leading-relaxed text-slate-500 dark:text-slate-400'>
             {task.description}
           </p>
+        )}
+
+        {(task as any).attachmentUrl && (
+          <div className='mt-3 flex items-center gap-1.5 overflow-hidden text-xs text-indigo-600 dark:text-indigo-400'>
+            <Paperclip className='size-3.5 shrink-0' />
+            <a
+              href={getAttachmentUrl((task as any).attachmentUrl)}
+              target='_blank'
+              rel='noopener noreferrer'
+              className='truncate hover:cursor-pointer hover:underline'
+              title={(task as any).attachmentName || 'Download attachment'}
+            >
+              {(task as any).attachmentName || 'Attachment'}
+            </a>
+          </div>
         )}
       </div>
 

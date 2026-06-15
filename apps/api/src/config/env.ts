@@ -12,6 +12,13 @@ export class Config {
   public readonly jwt_refresh_secret: string;
   public readonly jwt_refresh_expires_in: string;
 
+  public readonly storageProvider: string;
+  public readonly r2AccountId: string;
+  public readonly r2AccessKeyId: string;
+  public readonly r2SecretAccessKey: string;
+  public readonly r2BucketName: string;
+  public readonly r2PublicUrl: string;
+
   private constructor() {
     this.port = Number(process.env.PORT ?? 8000);
     this.nodeEnv = process.env.NODE_ENV ?? 'development';
@@ -24,6 +31,13 @@ export class Config {
     this.jwt_refresh_secret =
       process.env.JWT_REFRESH_SECRET ?? 'your_refresh_secret_key';
     this.jwt_refresh_expires_in = process.env.JWT_REFRESH_EXPIRES_IN ?? '7d';
+
+    this.storageProvider = process.env.STORAGE_PROVIDER ?? 'local';
+    this.r2AccountId = process.env.R2_ACCOUNT_ID ?? '';
+    this.r2AccessKeyId = process.env.R2_ACCESS_KEY_ID ?? '';
+    this.r2SecretAccessKey = process.env.R2_SECRET_ACCESS_KEY ?? '';
+    this.r2BucketName = process.env.R2_BUCKET_NAME ?? '';
+    this.r2PublicUrl = process.env.R2_PUBLIC_URL ?? '';
   }
 
   public static getInstance(): Config {

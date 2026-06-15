@@ -70,3 +70,24 @@ export const updateTaskMutationFn = ({
 }) => API.patch(`/tasks/${id}`, data);
 
 export const deleteTaskMutationFn = (id: string) => API.delete(`/tasks/${id}`);
+
+export interface UploadFileResponse {
+  success: boolean;
+  message: string;
+  data: {
+    url: string;
+    filename: string;
+  };
+}
+
+export const uploadFileMutationFn = (
+  file: File
+): Promise<UploadFileResponse> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return API.post('/tasks/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+};

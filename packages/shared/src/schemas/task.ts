@@ -23,7 +23,9 @@ export const taskSchema = z.object({
       return typeof val === 'string' ? new Date(val) : val;
     },
     z.date({ message: 'Due date is required' })
-  )
+  ),
+  attachmentUrl: z.string().optional().nullable(),
+  attachmentName: z.string().optional().nullable()
 });
 
 export type Task = z.infer<typeof taskSchema>;

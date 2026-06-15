@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { cn } from '@task-manager/ui/lib/utils';
 import QueryProvider from '@/components/query-provider';
 import { Toaster } from '@/components/sonner';
+import { Metadata } from 'next';
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -17,6 +18,14 @@ const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter'
 });
+
+export const metadata: Metadata = {
+  title: {
+    default: 'Task Manager',
+    template: '%s | Task Manager'
+  },
+  description: 'Task Manager is a web application for managing tasks.'
+};
 
 export default function RootLayout({
   children

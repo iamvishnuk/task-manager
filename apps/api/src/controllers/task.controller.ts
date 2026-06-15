@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { TaskService } from '../services/task.service';
 import { ResponseHandler } from '../utils/response-handler';
+import { getStorageService } from '../services/storage.service';
 import { HttpStatus } from '../config/http';
 import type { User } from '../db/schema/index';
 import type {
@@ -29,6 +30,38 @@ export class TaskController {
         task,
         HttpStatus.CREATED,
         'Task created successfully'
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async uploadAttachment(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!req.file) {
+        ResponseHandler.error(
+          res,
+          new Error('No file uploaded'),
+          HttpStatus.BAD_REQUEST
+        );
+        return;
+      }
+
+      const storageService = getStorageService();
+      const fileUrl = await storageService.uploadFile(
+        req.file.buffer,
+        req.file.originalname,
+        req.file.mimetype
+      );
+
+      ResponseHandler.success(
+        res,
+        {
+          url: fileUrl,
+          filename: req.file.originalname
+        },
+        HttpStatus.OK,
+        'File uploaded successfully'
       );
     } catch (error) {
       next(error);

@@ -11,6 +11,8 @@ export const tasks = pgTable('tasks', {
   status: varchar('status', { length: 20 }).notNull().default('TODO'),
   priority: varchar('priority', { length: 20 }).notNull().default('LOW'),
   dueDate: timestamp('due_date').notNull(),
+  attachmentUrl: text('attachment_url'),
+  attachmentName: text('attachment_name'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 });

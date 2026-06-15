@@ -1,6 +1,7 @@
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Application } from 'express';
+import path from 'path';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import './config/passport';
@@ -39,6 +40,10 @@ export class App {
     this.express.use(express.urlencoded({ extended: true }));
     this.express.use(cookieParser());
     this.express.use(passport.initialize());
+    this.express.use(
+      '/uploads',
+      express.static(path.join(process.cwd(), 'uploads'))
+    );
     Config.getInstance().isDevelopment()
       ? this.express.use(morgan('dev'))
       : this.express.use(morgan('combined'));

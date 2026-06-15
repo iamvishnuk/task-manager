@@ -2,6 +2,7 @@ import { SQL, and, eq, count, or, ilike, sql, asc, desc } from 'drizzle-orm';
 import { db } from '../db/index';
 import { tasks } from '../db/schema/index';
 import { NotFoundError } from '../utils/error';
+import { getStorageService } from './storage.service';
 import type {
   CreateTaskInput,
   UpdateTaskInput,
@@ -19,7 +20,9 @@ export class TaskService {
         description: data.description,
         status: data.status,
         priority: data.priority,
-        dueDate: data.dueDate
+        dueDate: data.dueDate,
+        attachmentUrl: data.attachmentUrl,
+        attachmentName: data.attachmentName
       })
       .returning();
 
@@ -145,6 +148,19 @@ export class TaskService {
   }
 
   async updateTask(userId: string, taskId: string, data: UpdateTaskInput) {
+    const existing = await this.getTaskById(userId, taskId);
+
+    // If attachmentUrl is being updated and is different from the old one, clean up the old file
+    if (
+      data.attachmentUrl !== undefined &&
+      data.attachmentUrl !== existing.attachmentUrl
+    ) {
+      if (existing.attachmentUrl) {
+        const storageService = getStorageService();
+        await storageService.deleteFile(existing.attachmentUrl);
+      }
+    }
+
     const [task] = await db
       .update(tasks)
       .set({
@@ -169,6 +185,12 @@ export class TaskService {
     if (!task) {
       throw new NotFoundError('Task not found');
     }
+
+    if (task.attachmentUrl) {
+      const storageService = getStorageService();
+      await storageService.deleteFile(task.attachmentUrl);
+    }
+
     return task;
   }
 }

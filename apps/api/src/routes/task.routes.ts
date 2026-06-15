@@ -13,6 +13,7 @@ import {
   validateParams,
   validateQuery
 } from '../middlewares/validate.middleware';
+import { upload } from '../middlewares/upload.middleware';
 
 export class TaskRouter {
   public readonly router: Router;
@@ -32,6 +33,13 @@ export class TaskRouter {
       '/',
       validateRequest(createTaskSchema),
       this.controller.createTask.bind(this.controller)
+    );
+
+    // POST /tasks/upload — upload task attachment file
+    this.router.post(
+      '/upload',
+      upload.single('file'),
+      this.controller.uploadAttachment.bind(this.controller)
     );
 
     // GET /tasks/stats — get task counts by status
