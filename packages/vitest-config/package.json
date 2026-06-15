@@ -4,8 +4,14 @@
   "type": "module",
   "private": true,
   "exports": {
-    "./node": "./node.js",
-    "./web": "./web.js"
+    "./node": {
+      "types": "./node.d.ts",
+      "default": "./node.js"
+    },
+    "./web": {
+      "types": "./web.d.ts",
+      "default": "./web.js"
+    }
   },
   "peerDependencies": {
     "vitest": ">=1.0.0"

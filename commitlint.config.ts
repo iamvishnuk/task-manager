@@ -14,6 +14,7 @@ const config: UserConfig = {
         'types',
         'eslint-config',
         'typescript-config',
+        'vitest-config',
         'root',
         'deps',
         'ci',
