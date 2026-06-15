@@ -16,7 +16,8 @@ import {
   getTasksQueryFn,
   getTasksStatsQueryFn,
   updateTaskMutationFn,
-  deleteTaskMutationFn
+  deleteTaskMutationFn,
+  getMeQueryFn
 } from '@/lib/api';
 import TaskEmptyState from '@/components/task-empty-state';
 import { useTaskSSE } from '@/hooks/use-task-sse';
@@ -27,6 +28,14 @@ export default function Page({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   useTaskSSE();
+
+  // Fetch current user details
+  const { data: userProfileData } = useQuery({
+    queryKey: ['user-me'],
+    queryFn: getMeQueryFn
+  });
+  const currentUser = userProfileData?.data;
+
   const resolvedSearchParams = use(searchParams);
   const { resolvedTheme, setTheme } = useTheme();
   const queryClient = useQueryClient();
@@ -207,6 +216,7 @@ export default function Page({
             setEditingTask(undefined);
             setIsModalOpen(true);
           }}
+          currentUser={currentUser}
         />
 
         {/* Filters & Control Panel */}

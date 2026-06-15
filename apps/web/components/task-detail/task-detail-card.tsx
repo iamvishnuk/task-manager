@@ -29,6 +29,8 @@ interface TaskDetailCardProps {
     attachmentName?: string | null;
     createdAt: string;
     updatedAt: string;
+    userEmail?: string | null;
+    userName?: string | null;
   };
   onToggleStatus: () => void;
   onEdit: () => void;
@@ -131,7 +133,7 @@ export function TaskDetailCard({
       </h1>
 
       {/* Details Metadata Grid */}
-      <div className='mt-6 grid grid-cols-1 gap-4 border-t border-b border-slate-100 py-5 sm:grid-cols-3 dark:border-slate-800/60'>
+      <div className='mt-6 grid grid-cols-1 gap-4 border-t border-b border-slate-100 py-5 sm:grid-cols-2 md:grid-cols-4 dark:border-slate-800/60'>
         <div className='flex items-center gap-2 text-xs'>
           <Calendar className='size-4.5 text-slate-400' />
           <div className='flex flex-col'>
@@ -171,6 +173,23 @@ export function TaskDetailCard({
             </span>
           </div>
         </div>
+
+        {task.userEmail && (
+          <div className='flex items-center gap-2 text-xs'>
+            <FileText className='size-4.5 text-slate-400' />
+            <div className='flex flex-col'>
+              <span className='text-[9px] font-semibold tracking-wider text-slate-400 uppercase dark:text-slate-500'>
+                Task Owner
+              </span>
+              <span
+                className='font-medium text-indigo-600 dark:text-indigo-400'
+                title={task.userName || undefined}
+              >
+                {task.userEmail}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Description Section */}

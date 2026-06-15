@@ -82,4 +82,19 @@ export class AuthController {
       next(error);
     }
   }
+
+  async getMe(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = req.user as User;
+      const { password: _, ...safeUser } = user;
+      ResponseHandler.success(
+        res,
+        safeUser,
+        HttpStatus.OK,
+        'Profile retrieved successfully'
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
 }

@@ -31,5 +31,10 @@ export class AuthRouter {
       authenticate,
       this.controller.logout.bind(this.controller)
     );
+    this.router.get(
+      '/me',
+      authenticate,
+      this.controller.getMe.bind(this.controller)
+    );
   }
 }

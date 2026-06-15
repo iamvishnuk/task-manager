@@ -148,6 +148,12 @@ const TaskCard = ({
           </Link>
         </h3>
 
+        {(task as any).userEmail && (
+          <div className='mt-2 flex w-fit items-center gap-1.5 rounded-md bg-indigo-500/10 px-2 py-0.5 text-[10px] font-semibold text-indigo-700/80 dark:text-indigo-400/80'>
+            <span>Owner: {(task as any).userEmail}</span>
+          </div>
+        )}
+
         {task.description && (
           <p className='mt-2 line-clamp-3 text-xs leading-relaxed text-slate-500 dark:text-slate-400'>
             {task.description}

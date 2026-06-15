@@ -10,6 +10,7 @@
     "typecheck": "turbo typecheck",
     "test": "turbo test",
     "test:watch": "vitest",
+    "db:promote": "pnpm --filter api db:promote",
     "prepare": "husky"
   },
   "devDependencies": {

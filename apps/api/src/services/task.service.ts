@@ -50,6 +50,7 @@ export class TaskService {
 
   async listTasks(
     userId: string,
+    userRole: string,
     filters: {
       status?: TaskStatus;
       priority?: TaskPriority;
@@ -61,7 +62,10 @@ export class TaskService {
   ) {
     const offset = (filters.page - 1) * filters.limit;
 
-    const conditions = [eq(tasks.userId, userId)];
+    const conditions: SQL[] = [];
+    if (userRole !== 'ADMIN') {
+      conditions.push(eq(tasks.userId, userId));
+    }
 
     if (filters.status) {
       conditions.push(eq(tasks.status, filters.status));
@@ -97,8 +101,23 @@ export class TaskService {
     }
 
     const tasksList = await db
-      .select()
+      .select({
+        id: tasks.id,
+        userId: tasks.userId,
+        title: tasks.title,
+        description: tasks.description,
+        status: tasks.status,
+        priority: tasks.priority,
+        dueDate: tasks.dueDate,
+        attachmentUrl: tasks.attachmentUrl,
+        attachmentName: tasks.attachmentName,
+        createdAt: tasks.createdAt,
+        updatedAt: tasks.updatedAt,
+        userEmail: users.email,
+        userName: users.name
+      })
       .from(tasks)
+      .leftJoin(users, eq(tasks.userId, users.id))
       .where(whereClause)
       .orderBy(orderByClause)
       .limit(filters.limit)
@@ -123,19 +142,27 @@ export class TaskService {
     };
   }
 
-  async getTaskStats(userId: string) {
+  async getTaskStats(userId: string, userRole: string = 'USER') {
+    const buildStatsCondition = (status: TaskStatus) => {
+      const conds = [eq(tasks.status, status)];
+      if (userRole !== 'ADMIN') {
+        conds.push(eq(tasks.userId, userId));
+      }
+      return and(...conds);
+    };
+
     const [todo] = await db
       .select({ count: count() })
       .from(tasks)
-      .where(and(eq(tasks.userId, userId), eq(tasks.status, 'TODO')));
+      .where(buildStatsCondition('TODO'));
     const [inProgress] = await db
       .select({ count: count() })
       .from(tasks)
-      .where(and(eq(tasks.userId, userId), eq(tasks.status, 'IN_PROGRESS')));
+      .where(buildStatsCondition('IN_PROGRESS'));
     const [done] = await db
       .select({ count: count() })
       .from(tasks)
-      .where(and(eq(tasks.userId, userId), eq(tasks.status, 'DONE')));
+      .where(buildStatsCondition('DONE'));
 
     const todoCount = todo ? Number(todo.count) : 0;
     const inProgressCount = inProgress ? Number(inProgress.count) : 0;
@@ -150,11 +177,31 @@ export class TaskService {
     };
   }
 
-  async getTaskById(userId: string, taskId: string) {
+  async getTaskById(userId: string, taskId: string, userRole: string = 'USER') {
+    const condition =
+      userRole === 'ADMIN'
+        ? eq(tasks.id, taskId)
+        : and(eq(tasks.userId, userId), eq(tasks.id, taskId));
+
     const [task] = await db
-      .select()
+      .select({
+        id: tasks.id,
+        userId: tasks.userId,
+        title: tasks.title,
+        description: tasks.description,
+        status: tasks.status,
+        priority: tasks.priority,
+        dueDate: tasks.dueDate,
+        attachmentUrl: tasks.attachmentUrl,
+        attachmentName: tasks.attachmentName,
+        createdAt: tasks.createdAt,
+        updatedAt: tasks.updatedAt,
+        userEmail: users.email,
+        userName: users.name
+      })
       .from(tasks)
-      .where(and(eq(tasks.userId, userId), eq(tasks.id, taskId)))
+      .leftJoin(users, eq(tasks.userId, users.id))
+      .where(condition)
       .limit(1);
 
     if (!task) {
@@ -294,9 +341,13 @@ export class TaskService {
     return task;
   }
 
-  async getTaskHistory(userId: string, taskId: string) {
+  async getTaskHistory(
+    userId: string,
+    taskId: string,
+    userRole: string = 'USER'
+  ) {
     // Validate task access
-    await this.getTaskById(userId, taskId);
+    await this.getTaskById(userId, taskId, userRole);
 
     const logs = await db
       .select({

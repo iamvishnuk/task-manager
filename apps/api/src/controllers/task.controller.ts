@@ -82,7 +82,7 @@ export class TaskController {
           page: number;
           limit: number;
         };
-      const result = await this.taskService.listTasks(user.id, {
+      const result = await this.taskService.listTasks(user.id, user.role, {
         status,
         priority,
         search,
@@ -104,7 +104,7 @@ export class TaskController {
   async getTaskStats(req: Request, res: Response, next: NextFunction) {
     try {
       const user = req.user as User;
-      const stats = await this.taskService.getTaskStats(user.id);
+      const stats = await this.taskService.getTaskStats(user.id, user.role);
       ResponseHandler.success(
         res,
         stats,
@@ -120,7 +120,7 @@ export class TaskController {
     try {
       const user = req.user as User;
       const { id } = req.params as { id: string };
-      const task = await this.taskService.getTaskById(user.id, id);
+      const task = await this.taskService.getTaskById(user.id, id, user.role);
       ResponseHandler.success(
         res,
         task,
@@ -172,7 +172,11 @@ export class TaskController {
     try {
       const user = req.user as User;
       const { id } = req.params as { id: string };
-      const history = await this.taskService.getTaskHistory(user.id, id);
+      const history = await this.taskService.getTaskHistory(
+        user.id,
+        id,
+        user.role
+      );
       ResponseHandler.success(
         res,
         history,

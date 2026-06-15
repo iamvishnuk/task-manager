@@ -7,12 +7,14 @@ type WorkspaceHeaderProps = {
   theme: string | undefined;
   setTheme: (theme: string) => void;
   onNewTaskClick: () => void;
+  currentUser?: { name: string; email: string; role: string };
 };
 
 const WorkspaceHeader = ({
   theme,
   setTheme,
-  onNewTaskClick
+  onNewTaskClick,
+  currentUser
 }: WorkspaceHeaderProps) => {
   return (
     <header className='mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
@@ -25,11 +27,15 @@ const WorkspaceHeader = ({
             height={32}
           />
           <h1 className='text-xl font-extrabold tracking-tight text-blue-900 md:text-3xl dark:text-blue-800'>
-            Task Workspace
+            {currentUser?.role === 'ADMIN'
+              ? 'Admin Workspace'
+              : 'Task Workspace'}
           </h1>
         </div>
         <p className='mt-1.5 text-xs text-slate-500 md:text-sm dark:text-slate-400'>
-          Streamline your workflow, manage tasks, and track statuses seamlessly.
+          {currentUser?.role === 'ADMIN'
+            ? `Viewing all tasks across the workspace as Administrator (${currentUser.email}).`
+            : 'Streamline your workflow, manage tasks, and track statuses seamlessly.'}
         </p>
       </div>
 

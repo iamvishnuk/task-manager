@@ -15,6 +15,20 @@ export const registerMutationFn = (data: TRegisterSchema) =>
 export const loginMutationFn = (data: TLoginSchema) =>
   API.post('/auth/login', data);
 
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  createdAt: string;
+}
+
+export const getMeQueryFn = (): Promise<{
+  success: boolean;
+  message: string;
+  data: UserProfile;
+}> => API.get('/auth/me');
+
 // Task query and mutation functions
 
 export interface GetTasksParams {
