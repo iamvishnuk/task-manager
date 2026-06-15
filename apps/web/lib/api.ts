@@ -91,3 +91,11 @@ export const uploadFileMutationFn = (
     }
   });
 };
+
+export const getTaskByIdQueryFn = (
+  id: string
+): Promise<{
+  success: boolean;
+  message: string;
+  data: Task & { id: string; createdAt: string; updatedAt: string };
+}> => API.get(`/tasks/${id}`);

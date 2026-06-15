@@ -1,4 +1,5 @@
 import { type Task, type TaskStatus } from '@task-manager/shared/schemas/task';
+import Link from 'next/link';
 import { Badge } from '@task-manager/ui/components/badge';
 import { cn } from '@task-manager/ui/lib/utils';
 import {
@@ -135,7 +136,12 @@ const TaskCard = ({
               'text-slate-400 line-through dark:text-slate-500'
           )}
         >
-          {task.title}
+          <Link
+            href={`/tasks/${task.id}`}
+            className='hover:cursor-pointer hover:underline'
+          >
+            {task.title}
+          </Link>
         </h3>
 
         {task.description && (
