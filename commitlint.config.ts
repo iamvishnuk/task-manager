@@ -16,7 +16,8 @@ const config: UserConfig = {
         'typescript-config',
         'root',
         'deps',
-        'ci'
+        'ci',
+        'shared'
       ]
     ],
     'scope-empty': [1, 'never'],
