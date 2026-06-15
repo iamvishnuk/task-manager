@@ -4,8 +4,8 @@
   "type": "module",
   "private": true,
   "exports": {
-    "./node": "./node.ts",
-    "./web": "./web.ts"
+    "./node": "./node.js",
+    "./web": "./web.js"
   },
   "peerDependencies": {
     "vitest": ">=1.0.0"
