@@ -21,6 +21,7 @@ export class App {
 
   constructor() {
     this.express = express();
+    this.express.set('trust proxy', 1);
     this.errorMiddleware = new ErrorMiddleware();
     this.notFoundMiddleware = new NotFoundMiddleware();
     this.registerGlobalMiddleware();

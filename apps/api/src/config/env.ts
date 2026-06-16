@@ -19,11 +19,15 @@ export class Config {
   public readonly r2BucketName: string;
   public readonly r2PublicUrl: string;
 
+  public readonly cookieSameSite: 'lax' | 'strict' | 'none';
+  public readonly cookieSecure: boolean;
+  public readonly cookieDomain: string | undefined;
+
   private constructor() {
     this.port = Number(process.env.PORT ?? 8000);
     this.nodeEnv = process.env.NODE_ENV ?? 'development';
 
-    this.appOrigin = process.env.APP_ORIGIN ?? 'http://localhost: 3000';
+    this.appOrigin = process.env.APP_ORIGIN ?? 'http://localhost:3000';
     this.apiPrefix = process.env.API_PREFIX ?? '/api/v1';
 
     this.jwt_secret = process.env.JWT_SECRET ?? 'your_secret_key';
@@ -38,6 +42,20 @@ export class Config {
     this.r2SecretAccessKey = process.env.R2_SECRET_ACCESS_KEY ?? '';
     this.r2BucketName = process.env.R2_BUCKET_NAME ?? '';
     this.r2PublicUrl = process.env.R2_PUBLIC_URL ?? '';
+
+    const sameSiteEnv = process.env.COOKIE_SAME_SITE?.toLowerCase();
+    this.cookieSameSite =
+      sameSiteEnv === 'strict'
+        ? 'strict'
+        : sameSiteEnv === 'none'
+          ? 'none'
+          : 'lax';
+
+    this.cookieSecure = process.env.COOKIE_SECURE
+      ? process.env.COOKIE_SECURE === 'true'
+      : this.nodeEnv === 'production';
+
+    this.cookieDomain = process.env.COOKIE_DOMAIN || undefined;
   }
 
   public static getInstance(): Config {

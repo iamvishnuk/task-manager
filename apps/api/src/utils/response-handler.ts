@@ -43,20 +43,26 @@ export class ResponseHandler {
   ) {
     const config = Config.getInstance();
 
+    const cookieOptions: any = {
+      httpOnly: true,
+      secure: config.cookieSecure,
+      sameSite: config.cookieSameSite
+    };
+
+    if (config.cookieDomain) {
+      cookieOptions.domain = config.cookieDomain;
+    }
+
     if (accessToken) {
       res.cookie('accessToken', accessToken, {
-        httpOnly: true,
-        secure: config.isProduction(),
-        sameSite: config.isProduction() ? 'strict' : 'lax',
+        ...cookieOptions,
         expires: calculateExpirationDate(config.jwt_expires_in)
       });
     }
 
     if (refreshToken) {
       res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: config.isProduction(),
-        sameSite: config.isProduction() ? 'strict' : 'lax',
+        ...cookieOptions,
         expires: calculateExpirationDate(config.jwt_refresh_expires_in),
         path: `${config.apiPrefix}/auth/refresh`
       });
@@ -76,8 +82,19 @@ export class ResponseHandler {
   ) {
     const config = Config.getInstance();
 
-    res.clearCookie('accessToken');
+    const cookieOptions: any = {
+      httpOnly: true,
+      secure: config.cookieSecure,
+      sameSite: config.cookieSameSite
+    };
+
+    if (config.cookieDomain) {
+      cookieOptions.domain = config.cookieDomain;
+    }
+
+    res.clearCookie('accessToken', cookieOptions);
     res.clearCookie('refreshToken', {
+      ...cookieOptions,
       path: `${config.apiPrefix}/auth/refresh`
     });
 
