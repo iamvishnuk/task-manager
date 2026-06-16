@@ -21,12 +21,13 @@ import {
 import { Eye, EyeOff, Loader } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { loginMutationFn } from '@/lib/api';
 import { toast } from 'sonner';
 
 const LoginPage = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -46,7 +47,9 @@ const LoginPage = () => {
     mutate(data, {
       onSuccess: () => {
         toast.success('Logged in Successfully');
+        queryClient.invalidateQueries({ queryKey: ['user-me'] });
         router.push('/');
+        router.refresh();
       },
       onError: (error) => {
         toast.error('Login Error', { description: error.message });

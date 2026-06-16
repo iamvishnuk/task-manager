@@ -23,13 +23,14 @@ import { Eye, EyeOff, Loader } from 'lucide-react';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import Link from 'next/link';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { registerMutationFn } from '@/lib/api';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 
 const SignUpPage = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -52,9 +53,11 @@ const SignUpPage = () => {
     mutate(data, {
       onSuccess: () => {
         toast.success('Registration successful 🎉', {
-          description: "We,'ve send a verification link to your email"
+          description: 'Your account is created successfully'
         });
+        queryClient.invalidateQueries({ queryKey: ['user-me'] });
         router.push('/');
+        router.refresh();
       },
       onError: (error) => {
         toast.error('Registration Error', { description: error.message });
