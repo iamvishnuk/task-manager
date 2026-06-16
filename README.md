@@ -27,13 +27,13 @@ Open `apps/api/.env` and update the database connection string, JWT secrets, and
 
 ### 2. Web App Environment Variables
 
-Copy the example file to `.env.local`:
+Copy the example file to `.env`:
 
 ```bash
-cp apps/web/.env.example apps/web/.env.local
+cp apps/web/.env.example apps/web/.env
 ```
 
-Open `apps/web/.env.local` and set `NEXT_PUBLIC_API_URL` to point to your API server (default is `http://localhost:8000/api/v1`).
+Open `apps/web/.env` and set `NEXT_PUBLIC_API_URL` to point to your API server (default is `http://localhost:8000/api/v1`).
 
 ---
 
