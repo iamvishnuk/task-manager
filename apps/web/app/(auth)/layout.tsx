@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ReactNode } from 'react';
 import logo from '@/images/logo.png';
+import AuthImage from '@/components/auth-image';
 
 type AuthLayoutProps = Readonly<{
   children: ReactNode;
@@ -31,7 +32,9 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
           <div className='w-full max-w-xs'>{children}</div>
         </div>
       </div>
-      <div className='hidden items-center lg:flex'></div>
+      <div className='hidden items-center lg:flex'>
+        <AuthImage />
+      </div>
     </div>
   );
 };

@@ -49,7 +49,7 @@ export class ResponseHandler {
       sameSite: config.cookieSameSite
     };
 
-    if (config.cookieDomain) {
+    if (config.cookieDomain && config.isProduction()) {
       cookieOptions.domain = config.cookieDomain;
     }
 
@@ -88,7 +88,7 @@ export class ResponseHandler {
       sameSite: config.cookieSameSite
     };
 
-    if (config.cookieDomain) {
+    if (config.cookieDomain && config.isProduction()) {
       cookieOptions.domain = config.cookieDomain;
     }
 
