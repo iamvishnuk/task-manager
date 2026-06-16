@@ -29,10 +29,12 @@ dist
 .github
 .gitignore
 
-# Environment variables
+# Environment variables (exclude secrets but allow app-level .env for build-time vars)
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 *.env
+# Allow web .env so Next.js can read NEXT_PUBLIC_* vars at build time
+!apps/web/.env

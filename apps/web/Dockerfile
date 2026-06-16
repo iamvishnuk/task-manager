@@ -13,8 +13,7 @@ COPY . .
 RUN pnpm install --frozen-lockfile
 
 # Build the web application
-ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+# Next.js reads apps/web/.env natively at build time (NEXT_PUBLIC_* vars get baked in)
 RUN pnpm --filter web build
 
 # Stage 2: Production runner
