@@ -95,13 +95,23 @@ This runs the development servers at:
 
 ## 🔑 Admin User Promotion
 
-To promote an existing user to the `ADMIN` role, run the promotion helper script from the root of the repository:
+To promote an existing user to the `ADMIN` role:
+
+### In Local Development
+
+Run the promotion helper script from the root of the repository:
 
 ```bash
 pnpm db:promote user@example.com
 ```
 
-_(This runs the `src/db/promote-user.ts` script inside `apps/api` to update the user's role in the database)._
+### In Production / Docker Deployment
+
+Run the command inside the running API Docker container:
+
+```bash
+docker exec -it task-manager-api pnpm --filter api db:promote user@example.com
+```
 
 ---
 
